@@ -44,9 +44,8 @@ beginning:
 				goto beginning
 
 			case CodeGlobal:
-				result = Reduce(globals, globals[code.X])
-				globals[code.X] = result
-				break loop
+				value = globals[code.X]
+				goto beginning
 
 			case CodeAbst:
 				if int32(len(stack)) < code.X {

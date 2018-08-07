@@ -30,8 +30,8 @@ func Operator(code int32) *crux.Operator {
 	return &crux.Operator{Code: code}
 }
 
-func Make() *crux.Make {
-	return &crux.Make{}
+func Make(index int32) *crux.Make {
+	return &crux.Make{Index: index}
 }
 
 func Var(name string, index int) *crux.Var {

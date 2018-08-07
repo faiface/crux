@@ -16,7 +16,7 @@ type (
 
 	Var struct {
 		Name  string
-		Index int
+		Index int32
 	}
 
 	Abst struct {

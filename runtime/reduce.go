@@ -1,9 +1,6 @@
 package runtime
 
-func Reduce(globals []Value, value Value) Value {
-	stack := []Value(nil)
-
-beginning:
+func Reduce(globals []Value, value Value, stack ...Value) Value {
 	switch v := value.(type) {
 	case *Char, *Int, *Float, *Struct:
 		if len(stack) > 0 {
@@ -20,9 +17,13 @@ beginning:
 		}
 
 		code, data := v.Code, v.Data
-		v.Code, v.Data = nil, nil
 
 		result := Value(nil)
+		share := false
+		if len(stack) == 0 {
+			v.Code, v.Data = nil, nil
+			share = true
+		}
 
 	loop:
 		for {
@@ -40,12 +41,12 @@ beginning:
 
 			case CodeVar:
 				index := int32(len(data)) - code.X - 1
-				value = data[index]
-				goto beginning
+				result = Reduce(globals, data[index], stack...)
+				break loop
 
 			case CodeGlobal:
-				value = globals[code.X]
-				goto beginning
+				result = Reduce(globals, globals[code.X], stack...)
+				break loop
 
 			case CodeAbst:
 				if int32(len(stack)) < code.X {
@@ -78,7 +79,9 @@ beginning:
 			}
 		}
 
-		v.Result = result
+		if share {
+			v.Result = result
+		}
 		return result
 	}
 	panic("unreachable")

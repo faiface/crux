@@ -59,7 +59,7 @@ beginning:
 				code = &code.Table[0]
 
 			case CodeAppl:
-				for i := range code.Table[:len(code.Table)-1] {
+				for i := len(code.Table) - 1; i >= 1; i-- {
 					switch code.Table[i].Kind {
 					case CodeValue:
 						stack = append(stack, code.Table[i].Value)
@@ -70,7 +70,7 @@ beginning:
 						stack = append(stack, &Thunk{Result: nil, Code: &code.Table[i], Data: data})
 					}
 				}
-				code = &code.Table[len(code.Table)-1]
+				code = &code.Table[0]
 
 			case CodeSwitch:
 				str := Reduce(globals, &Thunk{Result: nil, Code: &code.Table[0], Data: data}).(*Struct)

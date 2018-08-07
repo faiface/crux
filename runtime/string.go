@@ -12,9 +12,9 @@ func (f *Float) String() string { return fmt.Sprint(f.Value) }
 func (s *Struct) String() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "{/%d", s.Index)
-	for _, val := range s.Values {
+	for i := len(s.Values) - 1; i >= 0; i-- {
 		b.WriteByte(' ')
-		b.WriteString(val.String())
+		b.WriteString(s.Values[i].String())
 	}
 	b.WriteByte('}')
 	return b.String()

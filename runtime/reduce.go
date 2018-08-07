@@ -54,8 +54,8 @@ beginning:
 				}
 				pop := int32(len(stack)) - code.X
 				data = make([]Value, code.X)
-				copy(data, stack[:pop])
-				stack = stack[pop:]
+				copy(data, stack[pop:])
+				stack = stack[:pop]
 				code = &code.Table[0]
 
 			case CodeAppl:

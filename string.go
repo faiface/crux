@@ -10,7 +10,7 @@ func (i *Int) String() string   { return fmt.Sprint(&i.Value) }
 func (f *Float) String() string { return fmt.Sprint(f.Value) }
 
 func (o *Operator) String() string { return "#TODO" }
-func (m *Make) String() string     { return fmt.Sprintf("#make#%d", m.Index) }
+func (m *Make) String() string     { return fmt.Sprintf("#make/%d", m.Index) }
 
 func (v *Var) String() string {
 	if v.Index < 0 {

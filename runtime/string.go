@@ -25,6 +25,7 @@ var codeNames = [...]string{
 	CodeValue:    "VALUE   ",
 	CodeOperator: "OPERATOR",
 	CodeMake:     "MAKE    ",
+	CodeField:    "FIELD",
 	CodeVar:      "VAR     ",
 	CodeGlobal:   "GLOBAL  ",
 	CodeAbst:     "ABST    ",

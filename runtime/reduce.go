@@ -1,9 +1,14 @@
 package runtime
 
 func Reduce(globals []Value, value Value) Value {
+	stack := []Value(nil)
+
 beginning:
 	switch v := value.(type) {
 	case *Char, *Int, *Float, *Struct:
+		if len(stack) > 0 {
+			panic("not empty stack")
+		}
 		return v
 
 	case *Thunk:
@@ -17,7 +22,6 @@ beginning:
 		code, data := v.Code, v.Data
 		v.Code, v.Data = nil, nil
 
-		stack := []Value(nil)
 		result := Value(nil)
 
 	loop:
@@ -45,6 +49,9 @@ beginning:
 				break loop
 
 			case CodeAbst:
+				if int32(len(stack)) < code.X {
+					panic("not enough arguments on the stack")
+				}
 				pop := int32(len(stack)) - code.X
 				data = make([]Value, code.X)
 				copy(data, stack[:pop])
@@ -57,7 +64,7 @@ beginning:
 					case CodeValue:
 						stack = append(stack, code.Table[i].Value)
 					case CodeVar:
-						index := int32(len(data)) - code.X - 1
+						index := int32(len(data)) - code.Table[i].X - 1
 						stack = append(stack, data[index])
 					default:
 						stack = append(stack, &Thunk{Result: nil, Code: &code.Table[i], Data: data})
@@ -67,7 +74,7 @@ beginning:
 
 			case CodeSwitch:
 				str := Reduce(globals, &Thunk{Result: nil, Code: &code.Table[0], Data: data}).(*Struct)
-				data = append(data, str.Values...)
+				stack = append(stack, str.Values...)
 				code = &code.Table[str.Index+1]
 			}
 		}

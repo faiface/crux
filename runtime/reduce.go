@@ -38,12 +38,6 @@ beginning:
 				result = &Struct{Index: code.X, Values: stack}
 				break loop
 
-			case CodeField:
-				str := Reduce(globals, &Thunk{Result: nil, Code: &code.Table[0], Data: data}).(*Struct)
-				index := int32(len(str.Values)) - code.X - 1
-				value = str.Values[index]
-				goto beginning
-
 			case CodeVar:
 				index := int32(len(data)) - code.X - 1
 				value = data[index]

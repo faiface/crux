@@ -2,7 +2,9 @@ package runtime
 
 import "math/big"
 
-type Value interface{}
+type Value interface {
+	String() string
+}
 
 type (
 	Char  struct{ Value rune }

@@ -34,7 +34,7 @@ func Make(index int32) *crux.Make {
 	return &crux.Make{Index: index}
 }
 
-func Var(name string, index int) *crux.Var {
+func Var(name string, index int32) *crux.Var {
 	return &crux.Var{Name: name, Index: index}
 }
 

@@ -15,7 +15,7 @@ func indented(level int, c *Code, b *strings.Builder) {
 	for i := 0; i < level*2; i++ {
 		b.WriteByte(' ')
 	}
-	fmt.Fprintf(b, "%s %6d %v", codeNames[c.Kind], c.X, c.Value)
+	fmt.Fprintf(b, "%s %6d %v\n", codeNames[c.Kind], c.X, c.Value)
 	for i := range c.Table {
 		indented(level+1, &c.Table[i], b)
 	}

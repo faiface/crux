@@ -3,13 +3,15 @@ package crux
 import (
 	"fmt"
 	"strings"
+
+	"github.com/faiface/crux/runtime"
 )
 
 func (c *Char) String() string  { return fmt.Sprint(c.Value) }
 func (i *Int) String() string   { return fmt.Sprint(&i.Value) }
 func (f *Float) String() string { return fmt.Sprint(f.Value) }
 
-func (o *Operator) String() string { return "#TODO" }
+func (o *Operator) String() string { return runtime.OperatorString[o.Code] }
 func (m *Make) String() string     { return fmt.Sprintf("#make/%d", m.Index) }
 
 func (v *Var) String() string {

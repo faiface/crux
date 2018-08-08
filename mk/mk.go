@@ -4,7 +4,17 @@ import (
 	"math/big"
 
 	"github.com/faiface/crux"
+	"github.com/faiface/crux/runtime"
 )
+
+var operators map[string]int32
+
+func init() {
+	operators = make(map[string]int32)
+	for code, str := range runtime.OperatorString {
+		operators[str] = int32(code)
+	}
+}
 
 func Char(c rune) *crux.Char {
 	return &crux.Char{Value: c}
@@ -28,6 +38,10 @@ func Float(f float64) *crux.Float {
 
 func Operator(code int32) *crux.Operator {
 	return &crux.Operator{Code: code}
+}
+
+func Op(s string) *crux.Operator {
+	return &crux.Operator{Code: operators[s]}
 }
 
 func Make(index int32) *crux.Make {

@@ -1,5 +1,7 @@
 package runtime
 
+var Reductions = 0
+
 func Reduce(globals []Value, value Value, stack ...Value) Value {
 	switch v := value.(type) {
 	case *Char, *Int, *Float, *Struct:
@@ -27,13 +29,22 @@ func Reduce(globals []Value, value Value, stack ...Value) Value {
 
 	loop:
 		for {
+			Reductions++
+
 			switch code.Kind {
 			case CodeValue:
 				result = code.Value
 				break loop
 
 			case CodeOperator:
-				panic("TODO")
+				switch operatorArity[code.X] {
+				case 1:
+					result = operator1(globals, code.X, stack[len(stack)-1])
+					break loop
+				case 2:
+					result = operator2(globals, code.X, stack[len(stack)-1], stack[len(stack)-2])
+					break loop
+				}
 
 			case CodeMake:
 				result = &Struct{Index: code.X, Values: stack}

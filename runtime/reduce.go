@@ -78,13 +78,13 @@ func Reduce(globals []Value, value Value, stack ...Value) Value {
 						index := int32(len(data)) - code.Table[i].X - 1
 						stack = append(stack, data[index])
 					default:
-						stack = append(stack, &Thunk{Result: nil, Code: &code.Table[i], Data: data})
+						stack = append(stack, &Thunk{Code: &code.Table[i], Data: data})
 					}
 				}
 				code = &code.Table[0]
 
 			case CodeSwitch:
-				str := Reduce(globals, &Thunk{Result: nil, Code: &code.Table[0], Data: data}).(*Struct)
+				str := Reduce(globals, &Thunk{Code: &code.Table[0], Data: data}).(*Struct)
 				stack = append(stack, str.Values...)
 				code = &code.Table[str.Index+1]
 			}

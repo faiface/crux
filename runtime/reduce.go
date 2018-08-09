@@ -27,24 +27,19 @@ func Reduce(globals []Value, value Value) (result Value) {
 		shares []*Thunk
 	)
 
-	defer func() {
-		putStack(stack)
-		for _, share := range shares {
-			share.Result = result
-		}
-	}()
-
 beginning:
 	switch v := value.(type) {
 	case *Char, *Int, *Float, *Struct:
 		if len(stack) > 0 {
 			panic("not empty stack")
 		}
-		return v
+		result = v
+		goto end
 
 	case *Thunk:
 		if v.Result != nil {
-			return v.Result
+			result = v.Result
+			goto end
 		}
 		if v.Code == nil {
 			panic("infinite reduction")
@@ -61,14 +56,17 @@ beginning:
 
 			switch code.Kind {
 			case CodeValue:
-				return code.Value
+				result = code.Value
+				goto end
 
 			case CodeOperator:
 				switch operatorArity[code.X] {
 				case 1:
-					return operator1(globals, code.X, stack[len(stack)-1])
+					result = operator1(globals, code.X, stack[len(stack)-1])
+					goto end
 				case 2:
-					return operator2(globals, code.X, stack[len(stack)-1], stack[len(stack)-2])
+					result = operator2(globals, code.X, stack[len(stack)-1], stack[len(stack)-2])
+					goto end
 				default:
 					panic("invalid arity")
 				}
@@ -76,7 +74,8 @@ beginning:
 			case CodeMake:
 				values := make([]Value, len(stack))
 				copy(values, stack)
-				return &Struct{Index: code.X, Values: values}
+				result = &Struct{Index: code.X, Values: values}
+				goto end
 
 			case CodeVar:
 				index := int32(len(data)) - code.X - 1
@@ -121,6 +120,15 @@ beginning:
 				MaxStack = len(stack)
 			}
 		}
+
+	default:
+		panic("unreachable")
 	}
-	panic("unreachable")
+
+end:
+	putStack(stack)
+	for _, share := range shares {
+		share.Result = result
+	}
+	return result
 }

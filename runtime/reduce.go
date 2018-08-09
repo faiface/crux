@@ -1,9 +1,6 @@
 package runtime
 
-var (
-	Reductions = 0
-	MaxStack   = 0
-)
+var Reductions = 0
 
 var stackPool [][]Value
 
@@ -114,10 +111,6 @@ beginning:
 				str := Reduce(globals, &Thunk{Code: &code.Table[0], Data: data}).(*Struct)
 				stack = append(stack, str.Values...)
 				code = &code.Table[str.Index+1]
-			}
-
-			if len(stack) > MaxStack {
-				MaxStack = len(stack)
 			}
 		}
 

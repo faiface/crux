@@ -5,13 +5,30 @@ var (
 	MaxStack   = 0
 )
 
+var stackPool [][]Value
+
+func getStack() []Value {
+	if len(stackPool) == 0 {
+		return nil
+	}
+	i := len(stackPool) - 1
+	stack := stackPool[i]
+	stackPool = stackPool[:i]
+	return stack[:0]
+}
+
+func putStack(stack []Value) {
+	stackPool = append(stackPool, stack)
+}
+
 func Reduce(globals []Value, value Value) (result Value) {
 	var (
-		stack  []Value
+		stack  = getStack()
 		shares []*Thunk
 	)
 
 	defer func() {
+		putStack(stack)
 		for _, share := range shares {
 			share.Result = result
 		}

@@ -24,6 +24,11 @@ type (
 		Body  Expr
 	}
 
+	FastAbst struct {
+		Bound []string
+		Body  Expr
+	}
+
 	Appl struct {
 		Rator Expr
 		Rands []Expr

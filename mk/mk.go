@@ -58,6 +58,12 @@ func Abst(bound ...string) func(body crux.Expr) *crux.Abst {
 	}
 }
 
+func FastAbst(bound ...string) func(body crux.Expr) *crux.FastAbst {
+	return func(body crux.Expr) *crux.FastAbst {
+		return &crux.FastAbst{Bound: bound, Body: body}
+	}
+}
+
 func Appl(rator crux.Expr, rands ...crux.Expr) *crux.Appl {
 	return &crux.Appl{Rator: rator, Rands: rands}
 }

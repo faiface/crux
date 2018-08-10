@@ -95,6 +95,16 @@ func compile(alloc int, globals map[string][]Expr) (
 				Table: codes[i : i+1],
 			}, nil
 
+		case *FastAbst:
+			i := len(codes)
+			codes = append(codes, runtime.Code{})
+			codes[i] = process(i)(compile(e.Bound, e.Body))
+			return runtime.Code{
+				Kind:  runtime.CodeFastAbst,
+				X:     int32(len(e.Bound)),
+				Table: codes[i : i+1],
+			}, nil
+
 		case *Appl:
 			i := len(codes)
 			codes = append(codes, make([]runtime.Code, 1+len(e.Rands))...)

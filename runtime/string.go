@@ -50,6 +50,7 @@ var codeNames = [...]string{
 	CodeVar:      "VAR",
 	CodeGlobal:   "GLOBAL",
 	CodeAbst:     "ABST",
+	CodeFastAbst: "FASTABST",
 	CodeAppl:     "APPL",
 	CodeSwitch:   "SWITCH",
 }

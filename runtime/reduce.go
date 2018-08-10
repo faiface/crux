@@ -1,10 +1,18 @@
 package runtime
 
-var Reductions = 0
+var (
+	Reductions = 0
+	Stacks     = 0
+	Shares     = 0
+	Datas      = 0
+	Thunks     = 0
+	Structs    = 0
+)
 
 var (
 	stackPool  [][]Value
 	sharesPool [][]*Thunk
+	thunkPool  []*Thunk
 
 	nullaryStructs [16]Struct
 )
@@ -17,6 +25,7 @@ func init() {
 
 func getStack() []Value {
 	if len(stackPool) == 0 {
+		Stacks++
 		return nil
 	}
 	i := len(stackPool) - 1
@@ -31,6 +40,7 @@ func putStack(stack []Value) {
 
 func getShares() []*Thunk {
 	if len(sharesPool) == 0 {
+		Shares++
 		return nil
 	}
 	i := len(sharesPool) - 1
@@ -43,10 +53,25 @@ func putShares(shares []*Thunk) {
 	sharesPool = append(sharesPool, shares)
 }
 
+func getThunk() *Thunk {
+	if len(thunkPool) == 0 {
+		return &Thunk{}
+	}
+	i := len(thunkPool) - 1
+	thunk := thunkPool[i]
+	thunkPool = thunkPool[:i]
+	return thunk
+}
+
+func putThunk(thunk *Thunk) {
+	thunkPool = append(thunkPool, thunk)
+}
+
 func Reduce(globals []Value, value Value) (result Value) {
 	var (
-		stack  = getStack()
-		shares = getShares()
+		stack    = getStack()
+		fastData = getStack()
+		shares   = getShares()
 	)
 
 beginning:
@@ -89,11 +114,13 @@ beginning:
 				case 1:
 					x := stack[0]
 					putStack(stack)
+					putStack(fastData)
 					result = operator1(globals, code.X, Reduce(globals, x))
 					goto operatorEnd
 				case 2:
 					x, y := stack[1], stack[0]
 					putStack(stack)
+					putStack(fastData)
 					result = operator2(globals, code.X, Reduce(globals, x), Reduce(globals, y))
 					goto operatorEnd
 				default:
@@ -105,6 +132,7 @@ beginning:
 					result = &nullaryStructs[code.X]
 					goto end
 				}
+				Structs++
 				values := make([]Value, len(stack))
 				copy(values, stack)
 				result = &Struct{Index: code.X, Values: values}
@@ -123,9 +151,19 @@ beginning:
 				if int32(len(stack)) < code.X {
 					panic("not enough arguments on stack")
 				}
+				Datas++
 				pop := int32(len(stack)) - code.X
 				data = make([]Value, code.X)
 				copy(data, stack[pop:])
+				stack = stack[:pop]
+				code = &code.Table[0]
+
+			case CodeFastAbst:
+				if int32(len(stack)) < code.X {
+					panic("not enough arguments on stack")
+				}
+				pop := int32(len(stack)) - code.X
+				data = append(fastData[:0], stack[pop:]...)
 				stack = stack[:pop]
 				code = &code.Table[0]
 
@@ -138,13 +176,19 @@ beginning:
 						index := int32(len(data)) - code.Table[i].X - 1
 						stack = append(stack, data[index])
 					default:
+						Thunks++
 						stack = append(stack, &Thunk{Code: &code.Table[i], Data: data})
 					}
 				}
 				code = &code.Table[0]
 
 			case CodeSwitch:
-				str := Reduce(globals, &Thunk{Code: &code.Table[0], Data: data}).(*Struct)
+				thunk := getThunk()
+				thunk.Result = nil
+				thunk.Code = &code.Table[0]
+				thunk.Data = data
+				str := Reduce(globals, thunk).(*Struct)
+				putThunk(thunk)
 				stack = append(stack, str.Values...)
 				code = &code.Table[str.Index+1]
 			}
@@ -156,6 +200,7 @@ beginning:
 
 end:
 	putStack(stack)
+	putStack(fastData)
 operatorEnd:
 	for _, share := range shares {
 		share.Result = result

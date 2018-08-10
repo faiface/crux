@@ -39,6 +39,7 @@ const (
 	CodeVar
 	CodeGlobal
 	CodeAbst
+	CodeFastAbst
 	CodeAppl
 	CodeSwitch
 )

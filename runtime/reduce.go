@@ -2,7 +2,10 @@ package runtime
 
 var Reductions = 0
 
-var stackPool [][]Value
+var (
+	stackPool  [][]Value
+	sharesPool [][]*Thunk
+)
 
 func getStack() []Value {
 	if len(stackPool) == 0 {
@@ -18,10 +21,24 @@ func putStack(stack []Value) {
 	stackPool = append(stackPool, stack)
 }
 
+func getShares() []*Thunk {
+	if len(sharesPool) == 0 {
+		return nil
+	}
+	i := len(sharesPool) - 1
+	shares := sharesPool[i]
+	sharesPool = sharesPool[:i]
+	return shares[:0]
+}
+
+func putShares(shares []*Thunk) {
+	sharesPool = append(sharesPool, shares)
+}
+
 func Reduce(globals []Value, value Value) (result Value) {
 	var (
 		stack  = getStack()
-		shares []*Thunk
+		shares = getShares()
 	)
 
 beginning:
@@ -119,9 +136,10 @@ beginning:
 	}
 
 end:
-	putStack(stack)
 	for _, share := range shares {
 		share.Result = result
 	}
+	putStack(stack)
+	putShares(shares)
 	return result
 }

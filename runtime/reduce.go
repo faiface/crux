@@ -5,7 +5,15 @@ var Reductions = 0
 var (
 	stackPool  [][]Value
 	sharesPool [][]*Thunk
+
+	nullaryStructs [16]Struct
 )
+
+func init() {
+	for i := range nullaryStructs {
+		nullaryStructs[i].Index = int32(i)
+	}
+}
 
 func getStack() []Value {
 	if len(stackPool) == 0 {
@@ -93,6 +101,10 @@ beginning:
 				}
 
 			case CodeMake:
+				if len(stack) == 0 && code.X < int32(len(nullaryStructs)) {
+					result = &nullaryStructs[code.X]
+					goto end
+				}
 				values := make([]Value, len(stack))
 				copy(values, stack)
 				result = &Struct{Index: code.X, Values: values}

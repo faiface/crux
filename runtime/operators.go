@@ -80,34 +80,34 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 		return &z
 	case OpIntEq:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) == 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	case OpIntNeq:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) != 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	case OpIntLess:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) < 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	case OpIntLessEq:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) <= 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	case OpIntMore:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) > 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	case OpIntMoreEq:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) >= 0 {
-			return &Struct{Index: 0}
+			return &nullaryStructs[0]
 		}
-		return &Struct{Index: 1}
+		return &nullaryStructs[1]
 	default:
 		panic("wrong operator code")
 	}

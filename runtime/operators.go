@@ -46,7 +46,6 @@ var OperatorString = [...]string{
 }
 
 func operator1(globals []Value, code int32, x Value) Value {
-	x = Reduce(globals, x)
 	switch code {
 	case OpIntNeg:
 		var y Int
@@ -58,7 +57,6 @@ func operator1(globals []Value, code int32, x Value) Value {
 }
 
 func operator2(globals []Value, code int32, x, y Value) Value {
-	x, y = Reduce(globals, x), Reduce(globals, y)
 	switch code {
 	case OpIntAdd:
 		var z Int

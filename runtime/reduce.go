@@ -76,10 +76,13 @@ beginning:
 			case CodeOperator:
 				switch operatorArity[code.X] {
 				case 1:
-					result = operator1(globals, code.X, stack[len(stack)-1])
+					x := Reduce(globals, stack[len(stack)-1])
+					result = operator1(globals, code.X, x)
 					goto end
 				case 2:
-					result = operator2(globals, code.X, stack[len(stack)-1], stack[len(stack)-2])
+					x := Reduce(globals, stack[len(stack)-1])
+					y := Reduce(globals, stack[len(stack)-2])
+					result = operator2(globals, code.X, x, y)
 					goto end
 				default:
 					panic("invalid arity")

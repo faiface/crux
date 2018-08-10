@@ -11,6 +11,65 @@ type link struct {
 	Index int32
 }
 
+func isFast(locals []string, e Expr) bool {
+	switch e := e.(type) {
+	case *Char, *Int, *Float, *Operator, *Make, *Var, *Abst:
+		return true
+	case *Appl:
+		for _, rand := range e.Rands {
+			if _, ok := rand.(*Var); ok {
+				continue
+			}
+			if hasLocals(rand) {
+				return false
+			}
+		}
+		return true
+	case *Switch:
+		for _, cas := range e.Cases {
+			if !isFast(locals, cas) {
+				return false
+			}
+		}
+		return true
+	default:
+		panic("unreachable")
+	}
+}
+
+func hasLocals(e Expr) bool {
+	switch e := e.(type) {
+	case *Char, *Int, *Float, *Operator, *Make:
+		return false
+	case *Var:
+		return e.Index < 0
+	case *Abst:
+		return false
+	case *Appl:
+		if hasLocals(e.Rator) {
+			return true
+		}
+		for _, rand := range e.Rands {
+			if hasLocals(rand) {
+				return true
+			}
+		}
+		return false
+	case *Switch:
+		if hasLocals(e.Expr) {
+			return true
+		}
+		for _, cas := range e.Cases {
+			if hasLocals(cas) {
+				return true
+			}
+		}
+		return false
+	default:
+		panic("unreachable")
+	}
+}
+
 func Compile(globals map[string][]Expr) (
 	globalIndices map[string][]int32,
 	globalValues []runtime.Value,
@@ -89,18 +148,12 @@ func compile(alloc int, globals map[string][]Expr) (
 			i := len(codes)
 			codes = append(codes, runtime.Code{})
 			codes[i] = process(i)(compile(e.Bound, e.Body))
+			kind := runtime.CodeAbst
+			if isFast(e.Bound, e.Body) {
+				kind = runtime.CodeFastAbst
+			}
 			return runtime.Code{
-				Kind:  runtime.CodeAbst,
-				X:     int32(len(e.Bound)),
-				Table: codes[i : i+1],
-			}, nil
-
-		case *FastAbst:
-			i := len(codes)
-			codes = append(codes, runtime.Code{})
-			codes[i] = process(i)(compile(e.Bound, e.Body))
-			return runtime.Code{
-				Kind:  runtime.CodeFastAbst,
+				Kind:  kind,
 				X:     int32(len(e.Bound)),
 				Table: codes[i : i+1],
 			}, nil

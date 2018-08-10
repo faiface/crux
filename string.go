@@ -34,19 +34,6 @@ func (a *Abst) String() string {
 	return b.String()
 }
 
-func (a *FastAbst) String() string {
-	var b strings.Builder
-	b.WriteString("(\\")
-	for _, bound := range a.Bound {
-		b.WriteString(bound)
-		b.WriteByte(' ')
-	}
-	b.WriteString("=> ")
-	b.WriteString(a.Body.String())
-	b.WriteByte(')')
-	return b.String()
-}
-
 func (a *Appl) String() string {
 	var b strings.Builder
 	b.WriteByte('(')

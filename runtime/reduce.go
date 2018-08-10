@@ -74,16 +74,20 @@ beginning:
 				goto end
 
 			case CodeOperator:
+				if len(stack) != operatorArity[code.X] {
+					panic("wrong number of operands on stack")
+				}
 				switch operatorArity[code.X] {
 				case 1:
-					x := Reduce(globals, stack[len(stack)-1])
-					result = operator1(globals, code.X, x)
-					goto end
+					x := stack[len(stack)-1]
+					putStack(stack)
+					result = operator1(globals, code.X, Reduce(globals, x))
+					goto operatorEnd
 				case 2:
-					x := Reduce(globals, stack[len(stack)-1])
-					y := Reduce(globals, stack[len(stack)-2])
-					result = operator2(globals, code.X, x, y)
-					goto end
+					x, y := stack[len(stack)-1], stack[len(stack)-2]
+					putStack(stack)
+					result = operator2(globals, code.X, Reduce(globals, x), Reduce(globals, y))
+					goto operatorEnd
 				default:
 					panic("invalid arity")
 				}
@@ -139,10 +143,11 @@ beginning:
 	}
 
 end:
+	putStack(stack)
+operatorEnd:
 	for _, share := range shares {
 		share.Result = result
 	}
-	putStack(stack)
 	putShares(shares)
 	return result
 }

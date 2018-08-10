@@ -79,12 +79,12 @@ beginning:
 				}
 				switch operatorArity[code.X] {
 				case 1:
-					x := stack[len(stack)-1]
+					x := stack[0]
 					putStack(stack)
 					result = operator1(globals, code.X, Reduce(globals, x))
 					goto operatorEnd
 				case 2:
-					x, y := stack[len(stack)-1], stack[len(stack)-2]
+					x, y := stack[1], stack[0]
 					putStack(stack)
 					result = operator2(globals, code.X, Reduce(globals, x), Reduce(globals, y))
 					goto operatorEnd

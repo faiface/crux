@@ -1,7 +1,11 @@
 package runtime
 
+import "math/big"
+
 const (
 	OpIntNeg int32 = iota
+	OpIntInc
+	OpIntDec
 	OpIntAdd
 	OpIntSub
 	OpIntMul
@@ -17,6 +21,8 @@ const (
 
 var operatorArity = [...]int{
 	OpIntNeg:    1,
+	OpIntInc:    1,
+	OpIntDec:    1,
 	OpIntAdd:    2,
 	OpIntSub:    2,
 	OpIntMul:    2,
@@ -32,6 +38,8 @@ var operatorArity = [...]int{
 
 var OperatorString = [...]string{
 	OpIntNeg:    "neg",
+	OpIntInc:    "inc",
+	OpIntDec:    "dec",
 	OpIntAdd:    "+",
 	OpIntSub:    "-",
 	OpIntMul:    "*",
@@ -45,11 +53,21 @@ var OperatorString = [...]string{
 	OpIntMoreEq: ">=",
 }
 
+var bigOne = big.NewInt(1)
+
 func operator1(globals []Value, code int32, x Value) Value {
 	switch code {
 	case OpIntNeg:
 		var y Int
 		y.Value.Neg(&x.(*Int).Value)
+		return &y
+	case OpIntInc:
+		var y Int
+		y.Value.Add(&x.(*Int).Value, bigOne)
+		return &y
+	case OpIntDec:
+		var y Int
+		y.Value.Sub(&x.(*Int).Value, bigOne)
 		return &y
 	default:
 		panic("wrong operator code")

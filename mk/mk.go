@@ -62,6 +62,10 @@ func Appl(rator crux.Expr, rands ...crux.Expr) *crux.Appl {
 	return &crux.Appl{Rator: rator, Rands: rands}
 }
 
+func Strict(expr crux.Expr) *crux.Strict {
+	return &crux.Strict{Expr: expr}
+}
+
 func Switch(expr crux.Expr, cases ...crux.Expr) *crux.Switch {
 	return &crux.Switch{Expr: expr, Cases: cases}
 }

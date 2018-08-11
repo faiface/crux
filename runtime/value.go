@@ -41,5 +41,6 @@ const (
 	CodeAbst
 	CodeFastAbst
 	CodeAppl
+	CodeStrict
 	CodeSwitch
 )

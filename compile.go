@@ -17,11 +17,13 @@ func isFast(locals []string, e Expr) bool {
 		return true
 	case *Appl:
 		for _, rand := range e.Rands {
-			if _, ok := rand.(*Var); ok {
+			switch rand := rand.(type) {
+			case *Var, *Strict:
 				continue
-			}
-			if hasLocals(rand) {
-				return false
+			default:
+				if hasLocals(rand) {
+					return false
+				}
 			}
 		}
 		return true
@@ -55,6 +57,8 @@ func hasLocals(e Expr) bool {
 			}
 		}
 		return false
+	case *Strict:
+		return hasLocals(e.Expr)
 	case *Switch:
 		if hasLocals(e.Expr) {
 			return true
@@ -168,6 +172,15 @@ func compile(alloc int, globals map[string][]Expr) (
 			return runtime.Code{
 				Kind:  runtime.CodeAppl,
 				Table: codes[i : i+1+len(e.Rands)],
+			}, nil
+
+		case *Strict:
+			i := len(codes)
+			codes = append(codes, runtime.Code{})
+			codes[i] = process(i)(compile(locals, e.Expr))
+			return runtime.Code{
+				Kind:  runtime.CodeStrict,
+				Table: codes[i : i+1],
 			}, nil
 
 		case *Switch:

@@ -52,5 +52,6 @@ var codeNames = [...]string{
 	CodeAbst:     "ABST",
 	CodeFastAbst: "FASTABST",
 	CodeAppl:     "APPL",
+	CodeStrict:   "STRICT",
 	CodeSwitch:   "SWITCH",
 }

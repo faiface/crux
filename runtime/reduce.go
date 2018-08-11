@@ -175,11 +175,21 @@ beginning:
 					case CodeVar:
 						index := int32(len(data)) - code.Table[i].X - 1
 						stack = append(stack, data[index])
+					case CodeStrict:
+						thunk := getThunk()
+						thunk.Result = nil
+						thunk.Code = &code.Table[i].Table[0]
+						thunk.Data = data
+						stack = append(stack, Reduce(globals, thunk))
+						putThunk(thunk)
 					default:
 						Thunks++
 						stack = append(stack, &Thunk{Code: &code.Table[i], Data: data})
 					}
 				}
+				code = &code.Table[0]
+
+			case CodeStrict:
 				code = &code.Table[0]
 
 			case CodeSwitch:

@@ -29,6 +29,10 @@ type (
 		Rands []Expr
 	}
 
+	Strict struct {
+		Expr Expr
+	}
+
 	Switch struct {
 		Expr  Expr
 		Cases []Expr

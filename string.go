@@ -46,6 +46,14 @@ func (a *Appl) String() string {
 	return b.String()
 }
 
+func (s *Strict) String() string {
+	var b strings.Builder
+	b.WriteByte('{')
+	b.WriteString(s.Expr.String())
+	b.WriteByte('}')
+	return b.String()
+}
+
 func (s *Switch) String() string {
 	var b strings.Builder
 	b.WriteString("(#switch ")

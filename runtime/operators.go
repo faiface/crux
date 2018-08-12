@@ -3,7 +3,20 @@ package runtime
 import "math/big"
 
 const (
-	OpIntChar int32 = iota
+	OpCharInt int32 = iota
+	OpCharFloat
+	OpCharInc
+	OpCharDec
+	OpCharAdd
+	OpCharSub
+	OpCharEq
+	OpCharNeq
+	OpCharLess
+	OpCharLessEq
+	OpCharMore
+	OpCharMoreEq
+
+	OpIntChar
 	OpIntFloat
 	OpIntNeg
 	OpIntInc
@@ -24,6 +37,19 @@ const (
 )
 
 var operatorArity = [...]int{
+	OpCharInt:    1,
+	OpCharFloat:  1,
+	OpCharInc:    1,
+	OpCharDec:    1,
+	OpCharAdd:    2,
+	OpCharSub:    2,
+	OpCharEq:     2,
+	OpCharNeq:    2,
+	OpCharLess:   2,
+	OpCharLessEq: 2,
+	OpCharMore:   2,
+	OpCharMoreEq: 2,
+
 	OpIntChar:   1,
 	OpIntFloat:  1,
 	OpIntNeg:    1,
@@ -45,6 +71,19 @@ var operatorArity = [...]int{
 }
 
 var OperatorString = [...]string{
+	OpCharInt:    "int",
+	OpCharFloat:  "float",
+	OpCharInc:    "inc",
+	OpCharDec:    "dec",
+	OpCharAdd:    "+",
+	OpCharSub:    "-",
+	OpCharEq:     "==",
+	OpCharNeq:    "!=",
+	OpCharLess:   "<",
+	OpCharLessEq: "<=",
+	OpCharMore:   ">",
+	OpCharMoreEq: ">=",
+
 	OpIntChar:   "char",
 	OpIntFloat:  "float",
 	OpIntNeg:    "neg",
@@ -69,6 +108,17 @@ var bigOne = big.NewInt(1)
 
 func operator1(globals []Value, code int32, x Value) Value {
 	switch code {
+	case OpCharInt:
+		var y Int
+		y.Value.SetInt64(int64(x.(*Char).Value))
+		return &y
+	case OpCharFloat:
+		return &Float{Value: float64(x.(*Char).Value)}
+	case OpCharInc:
+		return &Char{Value: x.(*Char).Value + 1}
+	case OpCharDec:
+		return &Char{Value: x.(*Char).Value - 1}
+
 	case OpIntChar:
 		return &Char{Value: rune(x.(*Int).Value.Int64())}
 	case OpIntFloat:
@@ -93,6 +143,43 @@ func operator1(globals []Value, code int32, x Value) Value {
 
 func operator2(globals []Value, code int32, x, y Value) Value {
 	switch code {
+	case OpCharAdd:
+		delta := rune(y.(*Int).Value.Int64())
+		return &Char{Value: x.(*Char).Value + delta}
+	case OpCharSub:
+		delta := rune(y.(*Int).Value.Int64())
+		return &Char{Value: x.(*Char).Value - delta}
+	case OpCharEq:
+		if x.(*Char).Value == y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharNeq:
+		if x.(*Char).Value != y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharLess:
+		if x.(*Char).Value < y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharLessEq:
+		if x.(*Char).Value <= y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharMore:
+		if x.(*Char).Value > y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharMoreEq:
+		if x.(*Char).Value >= y.(*Char).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+
 	case OpIntAdd:
 		var z Int
 		z.Value.Add(&x.(*Int).Value, &y.(*Int).Value)

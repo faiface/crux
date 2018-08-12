@@ -1,6 +1,9 @@
 package runtime
 
-import "math/big"
+import (
+	"math"
+	"math/big"
+)
 
 const (
 	OpCharInt int32 = iota
@@ -19,6 +22,7 @@ const (
 	OpIntChar
 	OpIntFloat
 	OpIntNeg
+	OpIntAbs
 	OpIntInc
 	OpIntDec
 	OpIntAdd
@@ -34,6 +38,24 @@ const (
 	OpIntLessEq
 	OpIntMore
 	OpIntMoreEq
+
+	OpFloatChar
+	OpFloatInt
+	OpFloatNeg
+	OpFloatAbs
+	OpFloatInc
+	OpFloatDec
+	OpFloatAdd
+	OpFloatSub
+	OpFloatMul
+	OpFloatDiv
+	OpFloatExp
+	OpFloatEq
+	OpFloatNeq
+	OpFloatLess
+	OpFloatLessEq
+	OpFloatMore
+	OpFloatMoreEq
 )
 
 var operatorArity = [...]int{
@@ -53,6 +75,7 @@ var operatorArity = [...]int{
 	OpIntChar:   1,
 	OpIntFloat:  1,
 	OpIntNeg:    1,
+	OpIntAbs:    1,
 	OpIntInc:    1,
 	OpIntDec:    1,
 	OpIntAdd:    2,
@@ -68,6 +91,24 @@ var operatorArity = [...]int{
 	OpIntLessEq: 2,
 	OpIntMore:   2,
 	OpIntMoreEq: 2,
+
+	OpFloatChar:   1,
+	OpFloatInt:    1,
+	OpFloatNeg:    1,
+	OpFloatAbs:    1,
+	OpFloatInc:    1,
+	OpFloatDec:    1,
+	OpFloatAdd:    2,
+	OpFloatSub:    2,
+	OpFloatMul:    2,
+	OpFloatDiv:    2,
+	OpFloatExp:    2,
+	OpFloatEq:     2,
+	OpFloatNeq:    2,
+	OpFloatLess:   2,
+	OpFloatLessEq: 2,
+	OpFloatMore:   2,
+	OpFloatMoreEq: 2,
 }
 
 var OperatorString = [...]string{
@@ -87,6 +128,7 @@ var OperatorString = [...]string{
 	OpIntChar:   "char",
 	OpIntFloat:  "float",
 	OpIntNeg:    "neg",
+	OpIntAbs:    "abs",
 	OpIntInc:    "inc",
 	OpIntDec:    "dec",
 	OpIntAdd:    "+",
@@ -102,6 +144,24 @@ var OperatorString = [...]string{
 	OpIntLessEq: "<=",
 	OpIntMore:   ">",
 	OpIntMoreEq: ">=",
+
+	OpFloatChar:   "char",
+	OpFloatInt:    "int",
+	OpFloatNeg:    "neg",
+	OpFloatAbs:    "abs",
+	OpFloatInc:    "inc",
+	OpFloatDec:    "dec",
+	OpFloatAdd:    "+",
+	OpFloatSub:    "-",
+	OpFloatMul:    "*",
+	OpFloatDiv:    "/",
+	OpFloatExp:    "^",
+	OpFloatEq:     "==",
+	OpFloatNeq:    "!=",
+	OpFloatLess:   "<",
+	OpFloatLessEq: "<=",
+	OpFloatMore:   ">",
+	OpFloatMoreEq: ">=",
 }
 
 var bigOne = big.NewInt(1)
@@ -128,6 +188,10 @@ func operator1(globals []Value, code int32, x Value) Value {
 		var y Int
 		y.Value.Neg(&x.(*Int).Value)
 		return &y
+	case OpIntAbs:
+		var y Int
+		y.Value.Abs(&x.(*Int).Value)
+		return &y
 	case OpIntInc:
 		var y Int
 		y.Value.Add(&x.(*Int).Value, bigOne)
@@ -136,6 +200,22 @@ func operator1(globals []Value, code int32, x Value) Value {
 		var y Int
 		y.Value.Sub(&x.(*Int).Value, bigOne)
 		return &y
+
+	case OpFloatChar:
+		return &Char{Value: rune(x.(*Float).Value)}
+	case OpFloatInt:
+		var y Int
+		big.NewFloat(math.Floor(x.(*Float).Value)).Int(&y.Value)
+		return &y
+	case OpFloatNeg:
+		return &Float{Value: -x.(*Float).Value}
+	case OpFloatAbs:
+		return &Float{Value: math.Abs(x.(*Float).Value)}
+	case OpFloatInc:
+		return &Float{Value: x.(*Float).Value + 1}
+	case OpFloatDec:
+		return &Float{Value: x.(*Float).Value - 1}
+
 	default:
 		panic("wrong operator code")
 	}
@@ -234,6 +314,53 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 			return &nullaryStructs[0]
 		}
 		return &nullaryStructs[1]
+
+	case OpFloatAdd:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: xf + yf}
+	case OpFloatSub:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: xf - yf}
+	case OpFloatMul:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: xf * yf}
+	case OpFloatDiv:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: xf / yf}
+	case OpFloatExp:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: math.Pow(xf, yf)}
+	case OpFloatEq:
+		if x.(*Float).Value == y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatNeq:
+		if x.(*Float).Value != y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatLess:
+		if x.(*Float).Value < y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatLessEq:
+		if x.(*Float).Value <= y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatMore:
+		if x.(*Float).Value > y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatMoreEq:
+		if x.(*Float).Value >= y.(*Float).Value {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+
 	default:
 		panic("wrong operator code")
 	}

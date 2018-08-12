@@ -16,6 +16,9 @@ func isFast(e Expr) bool {
 	case *Char, *Int, *Float, *Operator, *Make, *Field, *Var, *Abst:
 		return true
 	case *Appl:
+		if _, ok := e.Rator.(*Operator); ok {
+			return true
+		}
 		if !isFast(e.Rator) {
 			return false
 		}

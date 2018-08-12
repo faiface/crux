@@ -3,7 +3,9 @@ package runtime
 import "math/big"
 
 const (
-	OpIntNeg int32 = iota
+	OpIntChar int32 = iota
+	OpIntFloat
+	OpIntNeg
 	OpIntInc
 	OpIntDec
 	OpIntAdd
@@ -22,6 +24,8 @@ const (
 )
 
 var operatorArity = [...]int{
+	OpIntChar:   1,
+	OpIntFloat:  1,
 	OpIntNeg:    1,
 	OpIntInc:    1,
 	OpIntDec:    1,
@@ -41,6 +45,8 @@ var operatorArity = [...]int{
 }
 
 var OperatorString = [...]string{
+	OpIntChar:   "char",
+	OpIntFloat:  "float",
 	OpIntNeg:    "neg",
 	OpIntInc:    "inc",
 	OpIntDec:    "dec",
@@ -63,6 +69,11 @@ var bigOne = big.NewInt(1)
 
 func operator1(globals []Value, code int32, x Value) Value {
 	switch code {
+	case OpIntChar:
+		return &Char{Value: rune(x.(*Int).Value.Int64())}
+	case OpIntFloat:
+		f, _ := new(big.Float).SetInt(&x.(*Int).Value).Float64()
+		return &Float{Value: f}
 	case OpIntNeg:
 		var y Int
 		y.Value.Neg(&x.(*Int).Value)

@@ -49,6 +49,7 @@ const (
 	OpFloatSub
 	OpFloatMul
 	OpFloatDiv
+	OpFloatMod
 	OpFloatExp
 	OpFloatEq
 	OpFloatNeq
@@ -102,6 +103,7 @@ var operatorArity = [...]int{
 	OpFloatSub:    2,
 	OpFloatMul:    2,
 	OpFloatDiv:    2,
+	OpFloatMod:    2,
 	OpFloatExp:    2,
 	OpFloatEq:     2,
 	OpFloatNeq:    2,
@@ -155,6 +157,7 @@ var OperatorString = [...]string{
 	OpFloatSub:    "-",
 	OpFloatMul:    "*",
 	OpFloatDiv:    "/",
+	OpFloatMod:    "%",
 	OpFloatExp:    "^",
 	OpFloatEq:     "==",
 	OpFloatNeq:    "!=",
@@ -327,6 +330,9 @@ func operator2(code int32, x, y Value) Value {
 	case OpFloatDiv:
 		xf, yf := x.(*Float).Value, y.(*Float).Value
 		return &Float{Value: xf / yf}
+	case OpFloatMod:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: xf - yf*math.Floor(xf/yf)}
 	case OpFloatExp:
 		xf, yf := x.(*Float).Value, y.(*Float).Value
 		return &Float{Value: math.Pow(xf, yf)}

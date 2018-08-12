@@ -123,6 +123,12 @@ beginning:
 					putStack(fastData)
 					result = operator2(globals, code.X, Reduce(globals, x), Reduce(globals, y))
 					goto operatorEnd
+				case 3:
+					x, y, z := stack[2], stack[1], stack[0]
+					putStack(stack)
+					putStack(fastData)
+					result = operator3(globals, code.X, Reduce(globals, x), Reduce(globals, y), Reduce(globals, z))
+					goto operatorEnd
 				default:
 					panic("invalid arity")
 				}

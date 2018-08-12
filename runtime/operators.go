@@ -11,6 +11,8 @@ const (
 	OpIntMul
 	OpIntDiv
 	OpIntMod
+	OpIntExp
+	OpIntExpMod
 	OpIntEq
 	OpIntNeq
 	OpIntLess
@@ -28,6 +30,8 @@ var operatorArity = [...]int{
 	OpIntMul:    2,
 	OpIntDiv:    2,
 	OpIntMod:    2,
+	OpIntExp:    2,
+	OpIntExpMod: 3,
 	OpIntEq:     2,
 	OpIntNeq:    2,
 	OpIntLess:   2,
@@ -45,6 +49,8 @@ var OperatorString = [...]string{
 	OpIntMul:    "*",
 	OpIntDiv:    "/",
 	OpIntMod:    "%",
+	OpIntExp:    "^",
+	OpIntExpMod: "^%",
 	OpIntEq:     "==",
 	OpIntNeq:    "!=",
 	OpIntLess:   "<",
@@ -96,6 +102,10 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 		var z Int
 		z.Value.Mod(&x.(*Int).Value, &y.(*Int).Value)
 		return &z
+	case OpIntExp:
+		var z Int
+		z.Value.Exp(&x.(*Int).Value, &y.(*Int).Value, nil)
+		return &z
 	case OpIntEq:
 		if x.(*Int).Value.Cmp(&y.(*Int).Value) == 0 {
 			return &nullaryStructs[0]
@@ -126,6 +136,17 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 			return &nullaryStructs[0]
 		}
 		return &nullaryStructs[1]
+	default:
+		panic("wrong operator code")
+	}
+}
+
+func operator3(globals []Value, code int32, x, y, z Value) Value {
+	switch code {
+	case OpIntExpMod:
+		var w Int
+		w.Value.Exp(&x.(*Int).Value, &y.(*Int).Value, &z.(*Int).Value)
+		return &w
 	default:
 		panic("wrong operator code")
 	}

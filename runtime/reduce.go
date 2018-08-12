@@ -67,9 +67,9 @@ func putThunk(thunk *Thunk) {
 	thunkPool = append(thunkPool, thunk)
 }
 
-func Reduce(globals []Value, value Value) (result Value) {
+func Reduce(globals []Value, value Value, args ...Value) (result Value) {
 	var (
-		stack    = getStack()
+		stack    = append(getStack(), args...)
 		fastData = getStack()
 		shares   = getShares()
 	)

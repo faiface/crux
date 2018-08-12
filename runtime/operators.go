@@ -166,7 +166,7 @@ var OperatorString = [...]string{
 
 var bigOne = big.NewInt(1)
 
-func operator1(globals []Value, code int32, x Value) Value {
+func operator1(code int32, x Value) Value {
 	switch code {
 	case OpCharInt:
 		var y Int
@@ -221,7 +221,7 @@ func operator1(globals []Value, code int32, x Value) Value {
 	}
 }
 
-func operator2(globals []Value, code int32, x, y Value) Value {
+func operator2(code int32, x, y Value) Value {
 	switch code {
 	case OpCharAdd:
 		delta := rune(y.(*Int).Value.Int64())
@@ -366,7 +366,7 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 	}
 }
 
-func operator3(globals []Value, code int32, x, y, z Value) Value {
+func operator3(code int32, x, y, z Value) Value {
 	switch code {
 	case OpIntExpMod:
 		var w Int

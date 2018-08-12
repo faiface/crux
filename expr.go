@@ -13,6 +13,7 @@ type (
 
 	Operator struct{ Code int32 }
 	Make     struct{ Index int32 }
+	Field    struct{ Index int32 }
 
 	Var struct {
 		Name  string

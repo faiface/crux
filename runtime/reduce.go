@@ -138,6 +138,18 @@ beginning:
 				result = &Struct{Index: code.X, Values: values}
 				goto end
 
+			case CodeField:
+				if len(stack) != 1 {
+					panic("wrong number of argments on stack")
+				}
+				x := stack[0]
+				putStack(stack)
+				putStack(fastData)
+				str := Reduce(globals, x).(*Struct)
+				index := int32(len(str.Values)) - code.X - 1
+				result = str.Values[index]
+				goto operatorEnd
+
 			case CodeVar:
 				index := int32(len(data)) - code.X - 1
 				value = data[index]

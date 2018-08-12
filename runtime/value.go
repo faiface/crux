@@ -36,6 +36,7 @@ const (
 	CodeValue CodeKind = iota
 	CodeOperator
 	CodeMake
+	CodeField
 	CodeVar
 	CodeGlobal
 	CodeAbst

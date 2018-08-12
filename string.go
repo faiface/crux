@@ -13,6 +13,7 @@ func (f *Float) String() string { return fmt.Sprint(f.Value) }
 
 func (o *Operator) String() string { return runtime.OperatorString[o.Code] }
 func (m *Make) String() string     { return fmt.Sprintf("#make/%d", m.Index) }
+func (f *Field) String() string    { return fmt.Sprintf("#field/%d", f.Index) }
 
 func (v *Var) String() string {
 	if v.Index < 0 {

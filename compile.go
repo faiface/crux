@@ -13,7 +13,7 @@ type link struct {
 
 func isFast(e Expr) bool {
 	switch e := e.(type) {
-	case *Char, *Int, *Float, *Operator, *Make, *Var, *Abst:
+	case *Char, *Int, *Float, *Operator, *Make, *Field, *Var, *Abst:
 		return true
 	case *Appl:
 		if !isFast(e.Rator) {
@@ -44,7 +44,7 @@ func isFast(e Expr) bool {
 
 func hasLocals(e Expr) bool {
 	switch e := e.(type) {
-	case *Char, *Int, *Float, *Operator, *Make:
+	case *Char, *Int, *Float, *Operator, *Make, *Field:
 		return false
 	case *Var:
 		return e.Index < 0
@@ -134,6 +134,12 @@ func compile(alloc int, globals map[string][]Expr) (
 		case *Make:
 			return runtime.Code{
 				Kind: runtime.CodeMake,
+				X:    e.Index,
+			}, nil
+
+		case *Field:
+			return runtime.Code{
+				Kind: runtime.CodeField,
 				X:    e.Index,
 			}, nil
 

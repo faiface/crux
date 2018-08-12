@@ -11,11 +11,14 @@ type link struct {
 	Index int32
 }
 
-func isFast(locals []string, e Expr) bool {
+func isFast(e Expr) bool {
 	switch e := e.(type) {
 	case *Char, *Int, *Float, *Operator, *Make, *Var, *Abst:
 		return true
 	case *Appl:
+		if !isFast(e.Rator) {
+			return false
+		}
 		for _, rand := range e.Rands {
 			switch rand := rand.(type) {
 			case *Var, *Strict:
@@ -29,7 +32,7 @@ func isFast(locals []string, e Expr) bool {
 		return true
 	case *Switch:
 		for _, cas := range e.Cases {
-			if !isFast(locals, cas) {
+			if !isFast(cas) {
 				return false
 			}
 		}
@@ -153,7 +156,7 @@ func compile(alloc int, globals map[string][]Expr) (
 			codes = append(codes, runtime.Code{})
 			codes[i] = process(i)(compile(e.Bound, e.Body))
 			kind := runtime.CodeAbst
-			if isFast(e.Bound, e.Body) {
+			if isFast(e.Body) {
 				kind = runtime.CodeFastAbst
 			}
 			return runtime.Code{

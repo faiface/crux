@@ -36,12 +36,8 @@ func Float(f float64) *crux.Float {
 	return &crux.Float{Value: f}
 }
 
-func Operator(code int32) *crux.Operator {
+func Op(code int32) *crux.Operator {
 	return &crux.Operator{Code: code}
-}
-
-func Op(s string) *crux.Operator {
-	return &crux.Operator{Code: operators[s]}
 }
 
 func Make(index int32) *crux.Make {

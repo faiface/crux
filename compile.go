@@ -17,7 +17,7 @@ func isFast(e Expr) bool {
 		return true
 	case *Appl:
 		switch e.Rator.(type) {
-		case *Operator, *Field:
+		case *Operator:
 			return true
 		}
 		if !isFast(e.Rator) {

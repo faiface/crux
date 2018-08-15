@@ -145,16 +145,12 @@ beginning:
 				goto end
 
 			case CodeField:
-				if len(stack) != 1 {
-					panic("wrong number of argments on stack")
-				}
-				x := stack[0]
-				putStack(stack)
-				putStack(fastData)
+				x := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
 				str := Reduce(globals, x).(*Struct)
 				index := int32(len(str.Values)) - code.X - 1
-				result = str.Values[index]
-				goto operatorEnd
+				value = str.Values[index]
+				goto beginning
 
 			case CodeVar:
 				index := int32(len(data)) - code.X - 1

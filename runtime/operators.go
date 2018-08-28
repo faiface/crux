@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 )
@@ -21,6 +22,7 @@ const (
 
 	OpIntChar
 	OpIntFloat
+	OpIntString
 	OpIntNeg
 	OpIntAbs
 	OpIntInc
@@ -41,6 +43,7 @@ const (
 
 	OpFloatChar
 	OpFloatInt
+	OpFloatString
 	OpFloatNeg
 	OpFloatAbs
 	OpFloatInc
@@ -75,6 +78,7 @@ var operatorArity = [...]int{
 
 	OpIntChar:   1,
 	OpIntFloat:  1,
+	OpIntString: 1,
 	OpIntNeg:    1,
 	OpIntAbs:    1,
 	OpIntInc:    1,
@@ -95,6 +99,7 @@ var operatorArity = [...]int{
 
 	OpFloatChar:   1,
 	OpFloatInt:    1,
+	OpFloatString: 1,
 	OpFloatNeg:    1,
 	OpFloatAbs:    1,
 	OpFloatInc:    1,
@@ -129,6 +134,7 @@ var OperatorString = [...]string{
 
 	OpIntChar:   "char",
 	OpIntFloat:  "float",
+	OpIntString: "string",
 	OpIntNeg:    "neg",
 	OpIntAbs:    "abs",
 	OpIntInc:    "inc",
@@ -149,6 +155,7 @@ var OperatorString = [...]string{
 
 	OpFloatChar:   "char",
 	OpFloatInt:    "int",
+	OpFloatString: "string",
 	OpFloatNeg:    "neg",
 	OpFloatAbs:    "abs",
 	OpFloatInc:    "inc",
@@ -187,6 +194,17 @@ func operator1(code int32, x Value) Value {
 	case OpIntFloat:
 		f, _ := new(big.Float).SetInt(&x.(*Int).Value).Float64()
 		return &Float{Value: f}
+	case OpIntString:
+		runes := []rune(x.(*Int).Value.Text(10))
+		chars := make([]Char, len(runes))
+		for i := range chars {
+			chars[i].Value = runes[i]
+		}
+		str := &Struct{Index: 0}
+		for i := len(runes) - 1; i >= 0; i-- {
+			str = &Struct{Index: 1, Values: []Value{str, &chars[i]}}
+		}
+		return str
 	case OpIntNeg:
 		var y Int
 		y.Value.Neg(&x.(*Int).Value)
@@ -210,6 +228,17 @@ func operator1(code int32, x Value) Value {
 		var y Int
 		big.NewFloat(math.Floor(x.(*Float).Value)).Int(&y.Value)
 		return &y
+	case OpFloatString:
+		runes := []rune(fmt.Sprint(x.(*Float).Value))
+		chars := make([]Char, len(runes))
+		for i := range chars {
+			chars[i].Value = runes[i]
+		}
+		str := &Struct{Index: 0}
+		for i := len(runes) - 1; i >= 0; i-- {
+			str = &Struct{Index: 1, Values: []Value{str, &chars[i]}}
+		}
+		return str
 	case OpFloatNeg:
 		return &Float{Value: -x.(*Float).Value}
 	case OpFloatAbs:

@@ -8,7 +8,6 @@ import (
 
 const (
 	OpCharInt int32 = iota
-	OpCharFloat
 	OpCharInc
 	OpCharDec
 	OpCharAdd
@@ -33,7 +32,6 @@ const (
 	OpIntDiv
 	OpIntMod
 	OpIntExp
-	OpIntExpMod
 	OpIntEq
 	OpIntNeq
 	OpIntLess
@@ -41,7 +39,6 @@ const (
 	OpIntMore
 	OpIntMoreEq
 
-	OpFloatChar
 	OpFloatInt
 	OpFloatString
 	OpFloatNeg
@@ -64,7 +61,6 @@ const (
 
 var operatorArity = [...]int{
 	OpCharInt:    1,
-	OpCharFloat:  1,
 	OpCharInc:    1,
 	OpCharDec:    1,
 	OpCharAdd:    2,
@@ -89,7 +85,6 @@ var operatorArity = [...]int{
 	OpIntDiv:    2,
 	OpIntMod:    2,
 	OpIntExp:    2,
-	OpIntExpMod: 3,
 	OpIntEq:     2,
 	OpIntNeq:    2,
 	OpIntLess:   2,
@@ -97,7 +92,6 @@ var operatorArity = [...]int{
 	OpIntMore:   2,
 	OpIntMoreEq: 2,
 
-	OpFloatChar:   1,
 	OpFloatInt:    1,
 	OpFloatString: 1,
 	OpFloatNeg:    1,
@@ -120,7 +114,6 @@ var operatorArity = [...]int{
 
 var OperatorString = [...]string{
 	OpCharInt:    "int",
-	OpCharFloat:  "float",
 	OpCharInc:    "inc",
 	OpCharDec:    "dec",
 	OpCharAdd:    "+",
@@ -145,7 +138,6 @@ var OperatorString = [...]string{
 	OpIntDiv:    "/",
 	OpIntMod:    "%",
 	OpIntExp:    "^",
-	OpIntExpMod: "^%",
 	OpIntEq:     "==",
 	OpIntNeq:    "!=",
 	OpIntLess:   "<",
@@ -153,7 +145,6 @@ var OperatorString = [...]string{
 	OpIntMore:   ">",
 	OpIntMoreEq: ">=",
 
-	OpFloatChar:   "char",
 	OpFloatInt:    "int",
 	OpFloatString: "string",
 	OpFloatNeg:    "neg",
@@ -182,8 +173,6 @@ func operator1(code int32, x Value) Value {
 		var y Int
 		y.Value.SetInt64(int64(x.(*Char).Value))
 		return &y
-	case OpCharFloat:
-		return &Float{Value: float64(x.(*Char).Value)}
 	case OpCharInc:
 		return &Char{Value: x.(*Char).Value + 1}
 	case OpCharDec:
@@ -222,8 +211,6 @@ func operator1(code int32, x Value) Value {
 		y.Value.Sub(&x.(*Int).Value, bigOne)
 		return &y
 
-	case OpFloatChar:
-		return &Char{Value: rune(x.(*Float).Value)}
 	case OpFloatInt:
 		var y Int
 		big.NewFloat(math.Floor(x.(*Float).Value)).Int(&y.Value)
@@ -396,17 +383,6 @@ func operator2(code int32, x, y Value) Value {
 		}
 		return &nullaryStructs[1]
 
-	default:
-		panic("wrong operator code")
-	}
-}
-
-func operator3(code int32, x, y, z Value) Value {
-	switch code {
-	case OpIntExpMod:
-		var w Int
-		w.Value.Exp(&x.(*Int).Value, &y.(*Int).Value, &z.(*Int).Value)
-		return &w
 	default:
 		panic("wrong operator code")
 	}

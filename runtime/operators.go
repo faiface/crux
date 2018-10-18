@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"os"
+	"strings"
 )
 
 const (
@@ -60,6 +62,9 @@ const (
 
 	OpStringInt
 	OpStringFloat
+
+	OpError
+	OpDump
 )
 
 var operatorArity = [...]int{
@@ -116,6 +121,9 @@ var operatorArity = [...]int{
 
 	OpStringInt:   1,
 	OpStringFloat: 1,
+
+	OpError: 1,
+	OpDump:  2,
 }
 
 var OperatorString = [...]string{
@@ -172,9 +180,20 @@ var OperatorString = [...]string{
 
 	OpStringInt:   "int",
 	OpStringFloat: "float",
+
+	OpError: "error",
+	OpDump:  "dump",
 }
 
 var bigOne = big.NewInt(1)
+
+func accumString(globals []Value, x Value) string {
+	var b strings.Builder
+	for str := x.(*Struct); str.Index != 0; str = Reduce(globals, str.Values[0]).(*Struct) {
+		b.WriteRune(Reduce(globals, str.Values[1]).(*Char).Value)
+	}
+	return b.String()
+}
 
 func operator1(globals []Value, code int32, x Value) Value {
 	switch code {
@@ -245,28 +264,25 @@ func operator1(globals []Value, code int32, x Value) Value {
 		return &Float{Value: x.(*Float).Value - 1}
 
 	case OpStringInt:
-		var runes []rune
-		for str := x.(*Struct); str.Index != 0; str = Reduce(globals, str.Values[0]).(*Struct) {
-			runes = append(runes, Reduce(globals, str.Values[1]).(*Char).Value)
-		}
 		var i Int
-		fmt.Sscan(string(runes), &i.Value)
+		fmt.Sscan(accumString(globals, x), &i.Value)
 		return &i
 	case OpStringFloat:
-		var runes []rune
-		for str := x.(*Struct); str.Index != 0; str = Reduce(globals, str.Values[0]).(*Struct) {
-			runes = append(runes, Reduce(globals, str.Values[1]).(*Char).Value)
-		}
 		var f Float
-		fmt.Sscan(string(runes), &f.Value)
+		fmt.Sscan(accumString(globals, x), &f.Value)
 		return &f
+
+	case OpError:
+		fmt.Fprintln(os.Stderr, accumString(globals, x))
+		os.Exit(1)
+		return nil
 
 	default:
 		panic("wrong operator code")
 	}
 }
 
-func operator2(code int32, x, y Value) Value {
+func operator2(globals []Value, code int32, x, y Value) Value {
 	switch code {
 	case OpCharAdd:
 		delta := rune(y.(*Int).Value.Int64())
@@ -408,6 +424,10 @@ func operator2(code int32, x, y Value) Value {
 			return &nullaryStructs[0]
 		}
 		return &nullaryStructs[1]
+
+	case OpDump:
+		fmt.Fprintln(os.Stderr, accumString(globals, x))
+		return y
 
 	default:
 		panic("wrong operator code")

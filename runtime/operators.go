@@ -273,7 +273,7 @@ func operator1(globals []Value, code int32, x Value) Value {
 		return &f
 
 	case OpError:
-		fmt.Fprintln(os.Stderr, accumString(globals, x))
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", accumString(globals, x))
 		os.Exit(1)
 		return nil
 

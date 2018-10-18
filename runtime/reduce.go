@@ -115,7 +115,7 @@ beginning:
 					x := stack[0]
 					putStack(stack)
 					putStack(fastData)
-					result = operator1(code.X, Reduce(globals, x))
+					result = operator1(globals, code.X, Reduce(globals, x))
 					goto operatorEnd
 				case 2:
 					x, y := stack[1], stack[0]

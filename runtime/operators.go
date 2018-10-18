@@ -57,6 +57,9 @@ const (
 	OpFloatLessEq
 	OpFloatMore
 	OpFloatMoreEq
+
+	OpStringInt
+	OpStringFloat
 )
 
 var operatorArity = [...]int{
@@ -110,6 +113,9 @@ var operatorArity = [...]int{
 	OpFloatLessEq: 2,
 	OpFloatMore:   2,
 	OpFloatMoreEq: 2,
+
+	OpStringInt:   1,
+	OpStringFloat: 1,
 }
 
 var OperatorString = [...]string{
@@ -163,11 +169,14 @@ var OperatorString = [...]string{
 	OpFloatLessEq: "<=",
 	OpFloatMore:   ">",
 	OpFloatMoreEq: ">=",
+
+	OpStringInt:   "int",
+	OpStringFloat: "float",
 }
 
 var bigOne = big.NewInt(1)
 
-func operator1(code int32, x Value) Value {
+func operator1(globals []Value, code int32, x Value) Value {
 	switch code {
 	case OpCharInt:
 		var y Int
@@ -234,6 +243,23 @@ func operator1(code int32, x Value) Value {
 		return &Float{Value: x.(*Float).Value + 1}
 	case OpFloatDec:
 		return &Float{Value: x.(*Float).Value - 1}
+
+	case OpStringInt:
+		var runes []rune
+		for str := x.(*Struct); str.Index != 0; str = Reduce(globals, str.Values[0]).(*Struct) {
+			runes = append(runes, Reduce(globals, str.Values[1]).(*Char).Value)
+		}
+		var i Int
+		fmt.Sscan(string(runes), &i.Value)
+		return &i
+	case OpStringFloat:
+		var runes []rune
+		for str := x.(*Struct); str.Index != 0; str = Reduce(globals, str.Values[0]).(*Struct) {
+			runes = append(runes, Reduce(globals, str.Values[1]).(*Char).Value)
+		}
+		var f Float
+		fmt.Sscan(string(runes), &f.Value)
+		return &f
 
 	default:
 		panic("wrong operator code")

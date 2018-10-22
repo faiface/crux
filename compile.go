@@ -84,17 +84,19 @@ func hasLocals(e Expr) bool {
 func Compile(globals map[string][]Expr) (
 	globalIndices map[string][]int32,
 	globalValues []runtime.Value,
+	codeIndices map[string][]int32,
 	codes []runtime.Code,
 ) {
 	// total hack, compile the first time just to get the number of codes
 	// compile second time so that tables all refer the same codes slice
-	_, _, codes = compile(0, globals)
+	_, _, _, codes = compile(0, globals)
 	return compile(len(codes), globals)
 }
 
 func compile(alloc int, globals map[string][]Expr) (
 	globalIndices map[string][]int32,
 	globalValues []runtime.Value,
+	codeIndices map[string][]int32,
 	codes []runtime.Code,
 ) {
 	links := make(map[int]link)
@@ -213,13 +215,17 @@ func compile(alloc int, globals map[string][]Expr) (
 
 	globalIndices = make(map[string][]int32)
 	globalValues = nil
+	codeIndices = make(map[string][]int32)
 	codes = make([]runtime.Code, 0, alloc)
 
 	for name := range globals {
 		for index := range globals[name] {
 			i := len(codes)
+
+			codeIndices[name] = append(codeIndices[name], int32(len(codes)))
 			codes = append(codes, runtime.Code{})
 			codes[i] = process(i)(compile(nil, globals[name][index]))
+
 			globalIndices[name] = append(globalIndices[name], int32(len(globalValues)))
 			switch codes[i].Kind {
 			case runtime.CodeValue:
@@ -237,5 +243,5 @@ func compile(alloc int, globals map[string][]Expr) (
 		}
 	}
 
-	return globalIndices, globalValues, codes
+	return globalIndices, globalValues, codeIndices, codes
 }

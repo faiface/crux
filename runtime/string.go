@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func (c *Char) String() string  { return fmt.Sprint(c.Value) }
+func (c *Char) String() string  { return fmt.Sprintf("%q", c.Value) }
 func (i *Int) String() string   { return fmt.Sprint(&i.Value) }
 func (f *Float) String() string { return fmt.Sprint(f.Value) }
 

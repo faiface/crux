@@ -178,8 +178,8 @@ var OperatorString = [...]string{
 	OpFloatMore:   ">/float",
 	OpFloatMoreEq: ">=/float",
 
-	OpStringInt:   "int->string",
-	OpStringFloat: "float->string",
+	OpStringInt:   "string->int",
+	OpStringFloat: "string->float",
 
 	OpError: "error",
 	OpDump:  "dump",

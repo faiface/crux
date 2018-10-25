@@ -40,6 +40,7 @@ const (
 	OpIntLessEq
 	OpIntMore
 	OpIntMoreEq
+	OpIntIsZero
 
 	OpFloatInt
 	OpFloatString
@@ -59,6 +60,30 @@ const (
 	OpFloatLessEq
 	OpFloatMore
 	OpFloatMoreEq
+	OpFloatIsPlusInf
+	OpFloatIsMinusInf
+	OpFloatIsInf
+	OpFloatIsNan
+	OpFloatSin
+	OpFloatCos
+	OpFloatTan
+	OpFloatAsin
+	OpFloatAcos
+	OpFloatAtan
+	OpFloatAtan2
+	OpFloatSinh
+	OpFloatCosh
+	OpFloatTanh
+	OpFloatAsinh
+	OpFloatAcosh
+	OpFloatAtanh
+	OpFloatCeil
+	OpFloatFloor
+	OpFloatSqrt
+	OpFloatCbrt
+	OpFloatLog
+	OpFloatHypot
+	OpFloatGamma
 
 	OpStringInt
 	OpStringFloat
@@ -99,25 +124,50 @@ var operatorArity = [...]int{
 	OpIntLessEq: 2,
 	OpIntMore:   2,
 	OpIntMoreEq: 2,
+	OpIntIsZero: 1,
 
-	OpFloatInt:    1,
-	OpFloatString: 1,
-	OpFloatNeg:    1,
-	OpFloatAbs:    1,
-	OpFloatInc:    1,
-	OpFloatDec:    1,
-	OpFloatAdd:    2,
-	OpFloatSub:    2,
-	OpFloatMul:    2,
-	OpFloatDiv:    2,
-	OpFloatMod:    2,
-	OpFloatExp:    2,
-	OpFloatEq:     2,
-	OpFloatNeq:    2,
-	OpFloatLess:   2,
-	OpFloatLessEq: 2,
-	OpFloatMore:   2,
-	OpFloatMoreEq: 2,
+	OpFloatInt:        1,
+	OpFloatString:     1,
+	OpFloatNeg:        1,
+	OpFloatAbs:        1,
+	OpFloatInc:        1,
+	OpFloatDec:        1,
+	OpFloatAdd:        2,
+	OpFloatSub:        2,
+	OpFloatMul:        2,
+	OpFloatDiv:        2,
+	OpFloatMod:        2,
+	OpFloatExp:        2,
+	OpFloatEq:         2,
+	OpFloatNeq:        2,
+	OpFloatLess:       2,
+	OpFloatLessEq:     2,
+	OpFloatMore:       2,
+	OpFloatMoreEq:     2,
+	OpFloatIsPlusInf:  1,
+	OpFloatIsMinusInf: 1,
+	OpFloatIsInf:      1,
+	OpFloatIsNan:      1,
+	OpFloatSin:        1,
+	OpFloatCos:        1,
+	OpFloatTan:        1,
+	OpFloatAsin:       1,
+	OpFloatAcos:       1,
+	OpFloatAtan:       1,
+	OpFloatAtan2:      2,
+	OpFloatSinh:       1,
+	OpFloatCosh:       1,
+	OpFloatTanh:       1,
+	OpFloatAsinh:      1,
+	OpFloatAcosh:      1,
+	OpFloatAtanh:      1,
+	OpFloatCeil:       1,
+	OpFloatFloor:      1,
+	OpFloatSqrt:       1,
+	OpFloatCbrt:       1,
+	OpFloatLog:        1,
+	OpFloatHypot:      2,
+	OpFloatGamma:      1,
 
 	OpStringInt:   1,
 	OpStringFloat: 1,
@@ -158,25 +208,50 @@ var OperatorString = [...]string{
 	OpIntLessEq: "<=/int",
 	OpIntMore:   ">/int",
 	OpIntMoreEq: ">=/int",
+	OpIntIsZero: "zero?/int",
 
-	OpFloatInt:    "float->int",
-	OpFloatString: "float->string",
-	OpFloatNeg:    "neg/float",
-	OpFloatAbs:    "abs/float",
-	OpFloatInc:    "inc/float",
-	OpFloatDec:    "dec/float",
-	OpFloatAdd:    "+/float",
-	OpFloatSub:    "-/float",
-	OpFloatMul:    "*/float",
-	OpFloatDiv:    "//float",
-	OpFloatMod:    "%/float",
-	OpFloatExp:    "^/float",
-	OpFloatEq:     "==/float",
-	OpFloatNeq:    "!=/float",
-	OpFloatLess:   "</float",
-	OpFloatLessEq: "<=/float",
-	OpFloatMore:   ">/float",
-	OpFloatMoreEq: ">=/float",
+	OpFloatInt:        "float->int",
+	OpFloatString:     "float->string",
+	OpFloatNeg:        "neg/float",
+	OpFloatAbs:        "abs/float",
+	OpFloatInc:        "inc/float",
+	OpFloatDec:        "dec/float",
+	OpFloatAdd:        "+/float",
+	OpFloatSub:        "-/float",
+	OpFloatMul:        "*/float",
+	OpFloatDiv:        "//float",
+	OpFloatMod:        "%/float",
+	OpFloatExp:        "^/float",
+	OpFloatEq:         "==/float",
+	OpFloatNeq:        "!=/float",
+	OpFloatLess:       "</float",
+	OpFloatLessEq:     "<=/float",
+	OpFloatMore:       ">/float",
+	OpFloatMoreEq:     ">=/float",
+	OpFloatIsPlusInf:  "+inf?",
+	OpFloatIsMinusInf: "-inf?",
+	OpFloatIsInf:      "inf?",
+	OpFloatIsNan:      "nan?",
+	OpFloatSin:        "sin",
+	OpFloatCos:        "cos",
+	OpFloatTan:        "tan",
+	OpFloatAsin:       "asin",
+	OpFloatAcos:       "acos",
+	OpFloatAtan:       "atan",
+	OpFloatAtan2:      "atan2",
+	OpFloatSinh:       "sinh",
+	OpFloatCosh:       "cosh",
+	OpFloatTanh:       "tanh",
+	OpFloatAsinh:      "asinh",
+	OpFloatAcosh:      "acosh",
+	OpFloatAtanh:      "atanh",
+	OpFloatCeil:       "ceil",
+	OpFloatFloor:      "floor",
+	OpFloatSqrt:       "sqrt",
+	OpFloatCbrt:       "cbrt",
+	OpFloatLog:        "log",
+	OpFloatHypot:      "hypot",
+	OpFloatGamma:      "gamma",
 
 	OpStringInt:   "string->int",
 	OpStringFloat: "string->float",
@@ -238,6 +313,11 @@ func operator1(globals []Value, code int32, x Value) Value {
 		var y Int
 		y.Value.Sub(&x.(*Int).Value, bigOne)
 		return &y
+	case OpIntIsZero:
+		if x.(*Int).Value.Sign() == 0 {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
 
 	case OpFloatInt:
 		var y Int
@@ -262,6 +342,62 @@ func operator1(globals []Value, code int32, x Value) Value {
 		return &Float{Value: x.(*Float).Value + 1}
 	case OpFloatDec:
 		return &Float{Value: x.(*Float).Value - 1}
+	case OpFloatIsMinusInf:
+		if math.IsInf(x.(*Float).Value, -1) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatIsPlusInf:
+		if math.IsInf(x.(*Float).Value, +1) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatIsInf:
+		if math.IsInf(x.(*Float).Value, 0) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatIsNan:
+		if math.IsNaN(x.(*Float).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpFloatSin:
+		return &Float{Value: math.Sin(x.(*Float).Value)}
+	case OpFloatCos:
+		return &Float{Value: math.Cos(x.(*Float).Value)}
+	case OpFloatTan:
+		return &Float{Value: math.Tan(x.(*Float).Value)}
+	case OpFloatAsin:
+		return &Float{Value: math.Asin(x.(*Float).Value)}
+	case OpFloatAcos:
+		return &Float{Value: math.Acos(x.(*Float).Value)}
+	case OpFloatAtan:
+		return &Float{Value: math.Atan(x.(*Float).Value)}
+	case OpFloatSinh:
+		return &Float{Value: math.Sinh(x.(*Float).Value)}
+	case OpFloatCosh:
+		return &Float{Value: math.Cosh(x.(*Float).Value)}
+	case OpFloatTanh:
+		return &Float{Value: math.Tanh(x.(*Float).Value)}
+	case OpFloatAsinh:
+		return &Float{Value: math.Asinh(x.(*Float).Value)}
+	case OpFloatAcosh:
+		return &Float{Value: math.Acosh(x.(*Float).Value)}
+	case OpFloatAtanh:
+		return &Float{Value: math.Atanh(x.(*Float).Value)}
+	case OpFloatCeil:
+		return &Float{Value: math.Ceil(x.(*Float).Value)}
+	case OpFloatFloor:
+		return &Float{Value: math.Floor(x.(*Float).Value)}
+	case OpFloatSqrt:
+		return &Float{Value: math.Sqrt(x.(*Float).Value)}
+	case OpFloatCbrt:
+		return &Float{Value: math.Cbrt(x.(*Float).Value)}
+	case OpFloatLog:
+		return &Float{Value: math.Log(x.(*Float).Value)}
+	case OpFloatGamma:
+		return &Float{Value: math.Gamma(x.(*Float).Value)}
 
 	case OpStringInt:
 		var i Int
@@ -424,6 +560,12 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 			return &nullaryStructs[0]
 		}
 		return &nullaryStructs[1]
+	case OpFloatAtan2:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: math.Atan2(xf, yf)}
+	case OpFloatHypot:
+		xf, yf := x.(*Float).Value, y.(*Float).Value
+		return &Float{Value: math.Hypot(xf, yf)}
 
 	case OpDump:
 		fmt.Fprintln(os.Stderr, accumString(globals, x))

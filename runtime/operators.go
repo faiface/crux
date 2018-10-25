@@ -401,7 +401,7 @@ func operator1(globals []Value, code int32, x Value) Value {
 
 	case OpStringInt:
 		var i Int
-		fmt.Sscan(accumString(globals, x), &i.Value)
+		fmt.Sscanf("%d", accumString(globals, x), &i.Value)
 		return &i
 	case OpStringFloat:
 		var f Float

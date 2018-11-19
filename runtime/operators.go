@@ -271,6 +271,8 @@ func accumString(globals []Value, x Value) string {
 }
 
 func operator1(globals []Value, code int32, x Value) Value {
+	x = Reduce(globals, x)
+
 	switch code {
 	case OpCharInt:
 		var y Int
@@ -419,6 +421,11 @@ func operator1(globals []Value, code int32, x Value) Value {
 }
 
 func operator2(globals []Value, code int32, x, y Value) Value {
+	x = Reduce(globals, x)
+	if code != OpDump {
+		y = Reduce(globals, y)
+	}
+
 	switch code {
 	case OpCharAdd:
 		delta := rune(y.(*Int).Value.Int64())
@@ -569,7 +576,7 @@ func operator2(globals []Value, code int32, x, y Value) Value {
 
 	case OpDump:
 		fmt.Fprintln(os.Stderr, accumString(globals, x))
-		return y
+		return Reduce(globals, y)
 
 	default:
 		panic("wrong operator code")

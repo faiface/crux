@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"os"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -20,6 +21,14 @@ const (
 	OpCharLessEq
 	OpCharMore
 	OpCharMoreEq
+	OpCharToUpper
+	OpCharToLower
+	OpCharIsWhitespace
+	OpCharIsLetter
+	OpCharIsDigit
+	OpCharIsUpper
+	OpCharIsLower
+	OpCharIsASCII
 
 	OpIntChar
 	OpIntFloat
@@ -93,17 +102,25 @@ const (
 )
 
 var operatorArity = [...]int{
-	OpCharInt:    1,
-	OpCharInc:    1,
-	OpCharDec:    1,
-	OpCharAdd:    2,
-	OpCharSub:    2,
-	OpCharEq:     2,
-	OpCharNeq:    2,
-	OpCharLess:   2,
-	OpCharLessEq: 2,
-	OpCharMore:   2,
-	OpCharMoreEq: 2,
+	OpCharInt:          1,
+	OpCharInc:          1,
+	OpCharDec:          1,
+	OpCharAdd:          2,
+	OpCharSub:          2,
+	OpCharEq:           2,
+	OpCharNeq:          2,
+	OpCharLess:         2,
+	OpCharLessEq:       2,
+	OpCharMore:         2,
+	OpCharMoreEq:       2,
+	OpCharToUpper:      1,
+	OpCharToLower:      1,
+	OpCharIsWhitespace: 1,
+	OpCharIsLetter:     1,
+	OpCharIsDigit:      1,
+	OpCharIsUpper:      1,
+	OpCharIsLower:      1,
+	OpCharIsASCII:      1,
 
 	OpIntChar:   1,
 	OpIntFloat:  1,
@@ -177,17 +194,25 @@ var operatorArity = [...]int{
 }
 
 var OperatorString = [...]string{
-	OpCharInt:    "char->int",
-	OpCharInc:    "inc/char",
-	OpCharDec:    "dec/char",
-	OpCharAdd:    "+/char",
-	OpCharSub:    "-/char",
-	OpCharEq:     "==/char",
-	OpCharNeq:    "!=/char",
-	OpCharLess:   "</char",
-	OpCharLessEq: "<=/char",
-	OpCharMore:   ">/char",
-	OpCharMoreEq: ">=/char",
+	OpCharInt:          "char->int",
+	OpCharInc:          "inc/char",
+	OpCharDec:          "dec/char",
+	OpCharAdd:          "+/char",
+	OpCharSub:          "-/char",
+	OpCharEq:           "==/char",
+	OpCharNeq:          "!=/char",
+	OpCharLess:         "</char",
+	OpCharLessEq:       "<=/char",
+	OpCharMore:         ">/char",
+	OpCharMoreEq:       ">=/char",
+	OpCharToUpper:      "upper/char",
+	OpCharToLower:      "lower/char",
+	OpCharIsWhitespace: "whitespace?/char",
+	OpCharIsLetter:     "letter?/char",
+	OpCharIsDigit:      "digit?/char",
+	OpCharIsUpper:      "upper?/char",
+	OpCharIsLower:      "lower?/char",
+	OpCharIsASCII:      "ascii?/char",
 
 	OpIntChar:   "int->char",
 	OpIntFloat:  "int->float",
@@ -282,6 +307,40 @@ func operator1(globals []Value, code int32, x Value) Value {
 		return &Char{Value: x.(*Char).Value + 1}
 	case OpCharDec:
 		return &Char{Value: x.(*Char).Value - 1}
+	case OpCharToUpper:
+		return &Char{Value: unicode.ToUpper(x.(*Char).Value)}
+	case OpCharToLower:
+		return &Char{Value: unicode.ToLower(x.(*Char).Value)}
+	case OpCharIsWhitespace:
+		if unicode.IsSpace(x.(*Char).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharIsLetter:
+		if unicode.IsLetter(x.(*Char).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharIsDigit:
+		if unicode.IsDigit(x.(*Char).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharIsUpper:
+		if unicode.IsUpper(x.(*Char).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharIsLower:
+		if unicode.IsLower(x.(*Char).Value) {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
+	case OpCharIsASCII:
+		if x.(*Char).Value <= unicode.MaxASCII {
+			return &nullaryStructs[0]
+		}
+		return &nullaryStructs[1]
 
 	case OpIntChar:
 		return &Char{Value: rune(x.(*Int).Value.Int64())}
